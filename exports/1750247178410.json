@@ -1,0 +1,19 @@
+{
+  "timestamp": 1750247178410,
+  "operation": {
+    "id": "webapp:react:store",
+    "refs": {
+      "id": "redux",
+      "version": "1750247137108"
+    }
+  },
+  "projectId": "personal-finance-tracker-app",
+  "files": [
+    {
+      "path": "../../apps/personal-finance-tracker-app/vitereact/src/store/main.tsx",
+      "type": "text",
+      "size": 4804,
+      "dependencies": false
+    }
+  ]
+}

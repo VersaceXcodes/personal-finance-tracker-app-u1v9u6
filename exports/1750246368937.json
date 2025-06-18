@@ -1,0 +1,15 @@
+{
+  "timestamp": 1750246368937,
+  "operation": {
+    "id": "db:postgres"
+  },
+  "projectId": "personal-finance-tracker-app",
+  "files": [
+    {
+      "path": "../../apps/personal-finance-tracker-app/backend/db.sql",
+      "type": "text",
+      "size": 10334,
+      "dependencies": false
+    }
+  ]
+}

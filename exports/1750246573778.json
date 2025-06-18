@@ -1,0 +1,15 @@
+{
+  "timestamp": 1750246573778,
+  "operation": {
+    "id": "backend:specifications:openapi"
+  },
+  "projectId": "personal-finance-tracker-app",
+  "files": [
+    {
+      "path": "../../apps/personal-finance-tracker-app/backend/openapi.yaml",
+      "type": "text",
+      "size": 30529,
+      "dependencies": false
+    }
+  ]
+}

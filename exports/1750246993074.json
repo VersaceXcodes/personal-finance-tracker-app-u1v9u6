@@ -1,0 +1,15 @@
+{
+  "timestamp": 1750246993074,
+  "operation": {
+    "id": "backend:server:main"
+  },
+  "projectId": "personal-finance-tracker-app",
+  "files": [
+    {
+      "path": "../../apps/personal-finance-tracker-app/backend/server.js",
+      "type": "text",
+      "size": 31081,
+      "dependencies": false
+    }
+  ]
+}

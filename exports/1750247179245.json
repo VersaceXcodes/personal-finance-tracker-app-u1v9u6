@@ -1,0 +1,15 @@
+{
+  "timestamp": 1750247179245,
+  "operation": {
+    "id": "settings:config:package"
+  },
+  "projectId": "personal-finance-tracker-app",
+  "files": [
+    {
+      "path": "../../apps/personal-finance-tracker-app/vitereact/package.json",
+      "type": "text",
+      "size": 2910,
+      "dependencies": true
+    }
+  ]
+}

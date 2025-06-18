@@ -1,0 +1,21 @@
+{
+  "timestamp": 1750246725434,
+  "operation": {
+    "id": "settings:config:package"
+  },
+  "projectId": "personal-finance-tracker-app",
+  "files": [
+    {
+      "path": "../../apps/personal-finance-tracker-app/backend/package.json",
+      "type": "text",
+      "size": 782,
+      "dependencies": true
+    },
+    {
+      "path": "../../apps/personal-finance-tracker-app/backend/.env",
+      "type": "text",
+      "size": 185,
+      "dependencies": false
+    }
+  ]
+}

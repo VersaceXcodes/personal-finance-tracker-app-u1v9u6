@@ -1,0 +1,1149 @@
+openapi: 3.0.0
+info:
+  title: Personal Finance Tracker API
+  version: 1.0.0
+  description: >
+    REST API for managing personal finances including user authentication,
+    accounts, transactions, budgets, bills, notifications, and user settings.
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      operationId: register_user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequest"
+      responses:
+        "201":
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        default:
+          description: Unexpected error while registering user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/auth/login:
+    post:
+      summary: Authenticate a user and return a JWT token
+      operationId: login_user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Successfully authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        default:
+          description: Authentication error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/users/me:
+    get:
+      summary: Retrieve the authenticated user's profile
+      operationId: get_user_profile
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        default:
+          description: Error retrieving user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      summary: Update the authenticated user's profile
+      operationId: update_user_profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdateRequest"
+      responses:
+        "200":
+          description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        default:
+          description: Error updating user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/accounts:
+    get:
+      summary: List all accounts for the authenticated user
+      operationId: list_accounts
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Accounts retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AccountResponse"
+        default:
+          description: Error retrieving accounts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Create a new account
+      operationId: create_account
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountRequest"
+      responses:
+        "201":
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        default:
+          description: Error creating account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/accounts/{account_id}:
+    get:
+      summary: Retrieve details for a specific account
+      operationId: get_account
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          description: The unique identifier of the account
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Account details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        default:
+          description: Error retrieving account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Update an existing account
+      operationId: update_account
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          description: The unique identifier of the account to update
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountUpdateRequest"
+      responses:
+        "200":
+          description: Account updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AccountResponse"
+        default:
+          description: Error updating account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Delete an account
+      operationId: delete_account
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: path
+          description: The unique identifier of the account to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Account deleted successfully
+        default:
+          description: Error deleting account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/transactions:
+    get:
+      summary: List transactions with optional filtering
+      operationId: list_transactions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: account_id
+          in: query
+          description: Filter transactions by account ID
+          required: false
+          schema:
+            type: string
+        - name: category_id
+          in: query
+          description: Filter transactions by category ID
+          required: false
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          description: Filter transactions from this start date (inclusive)
+          required: false
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          description: Filter transactions up to this end date (inclusive)
+          required: false
+          schema:
+            type: string
+        - name: transaction_type
+          in: query
+          description: Filter transactions by type (e.g., 'expense', 'income')
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transactions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransactionResponse"
+        default:
+          description: Error retrieving transactions
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Create a new transaction
+      operationId: create_transaction
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionRequest"
+      responses:
+        "201":
+          description: Transaction created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        default:
+          description: Error creating transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/transactions/{transaction_id}:
+    get:
+      summary: Retrieve details for a specific transaction
+      operationId: get_transaction
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: transaction_id
+          in: path
+          description: The unique identifier of the transaction
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Transaction details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        default:
+          description: Error retrieving transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Update an existing transaction
+      operationId: update_transaction
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: transaction_id
+          in: path
+          description: The unique identifier of the transaction
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransactionRequest"
+      responses:
+        "200":
+          description: Transaction updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransactionResponse"
+        default:
+          description: Error updating transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Delete a transaction
+      operationId: delete_transaction
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: transaction_id
+          in: path
+          description: The unique identifier of the transaction
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Transaction deleted successfully
+        default:
+          description: Error deleting transaction
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/budgets:
+    get:
+      summary: List all budgets for the authenticated user
+      operationId: list_budgets
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Budgets retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BudgetResponse"
+        default:
+          description: Error retrieving budgets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Create a new budget
+      operationId: create_budget
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BudgetRequest"
+      responses:
+        "201":
+          description: Budget created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetResponse"
+        default:
+          description: Error creating budget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/budgets/{budget_id}:
+    get:
+      summary: Retrieve details for a specific budget
+      operationId: get_budget
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: budget_id
+          in: path
+          description: The unique identifier of the budget
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Budget details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetResponse"
+        default:
+          description: Error retrieving budget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Update an existing budget
+      operationId: update_budget
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: budget_id
+          in: path
+          description: The unique identifier of the budget
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BudgetRequest"
+      responses:
+        "200":
+          description: Budget updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BudgetResponse"
+        default:
+          description: Error updating budget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Delete a budget
+      operationId: delete_budget
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: budget_id
+          in: path
+          description: The unique identifier of the budget
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Budget deleted successfully
+        default:
+          description: Error deleting budget
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/bills:
+    get:
+      summary: List all bill reminders for the authenticated user
+      operationId: list_bills
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Bills retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BillResponse"
+        default:
+          description: Error retrieving bills
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Create a new bill reminder
+      operationId: create_bill
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillRequest"
+      responses:
+        "201":
+          description: Bill reminder created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillResponse"
+        default:
+          description: Error creating bill
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/bills/{bill_id}:
+    get:
+      summary: Retrieve details for a specific bill reminder
+      operationId: get_bill
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: bill_id
+          in: path
+          description: The unique identifier of the bill reminder
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bill details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillResponse"
+        default:
+          description: Error retrieving bill
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Update an existing bill reminder
+      operationId: update_bill
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: bill_id
+          in: path
+          description: The unique identifier of the bill reminder
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillRequest"
+      responses:
+        "200":
+          description: Bill updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillResponse"
+        default:
+          description: Error updating bill
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Delete a bill reminder
+      operationId: delete_bill
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: bill_id
+          in: path
+          description: The unique identifier of the bill reminder
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Bill deleted successfully
+        default:
+          description: Error deleting bill
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/notifications:
+    get:
+      summary: Retrieve notifications for the authenticated user
+      operationId: list_notifications
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NotificationResponse"
+        default:
+          description: Error retrieving notifications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/notifications/{notification_id}:
+    patch:
+      summary: Update a notification (e.g., mark as read)
+      operationId: update_notification
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: notification_id
+          in: path
+          description: The unique identifier of the notification
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotificationUpdateRequest"
+      responses:
+        "200":
+          description: Notification updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationResponse"
+        default:
+          description: Error updating notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/user_settings:
+    get:
+      summary: Retrieve user settings
+      operationId: get_user_settings
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User settings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSettingsResponse"
+        default:
+          description: Error retrieving user settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      summary: Update user settings
+      operationId: update_user_settings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserSettingsRequest"
+      responses:
+        "200":
+          description: User settings updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSettingsResponse"
+        default:
+          description: Error updating user settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/keyword_rules:
+    get:
+      summary: List all keyword rules for auto-categorization
+      operationId: list_keyword_rules
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Keyword rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/KeywordRuleResponse"
+        default:
+          description: Error retrieving keyword rules
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Create a new keyword rule
+      operationId: create_keyword_rule
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KeywordRuleRequest"
+      responses:
+        "201":
+          description: Keyword rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KeywordRuleResponse"
+        default:
+          description: Error creating keyword rule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SignupRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: string
+    UserResponse:
+      type: object
+      required:
+        - id
+        - email
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    LoginResponse:
+      type: object
+      required:
+        - token
+        - user
+      properties:
+        token:
+          type: string
+        user:
+          type: object
+          required:
+            - id
+            - email
+          properties:
+            id:
+              type: string
+            email:
+              type: string
+            name:
+              type: string
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+    AccountRequest:
+      type: object
+      required:
+        - account_name
+        - account_type
+        - initial_balance
+        - currency
+      properties:
+        account_name:
+          type: string
+        account_type:
+          type: string
+        initial_balance:
+          type: number
+        currency:
+          type: string
+    AccountResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - account_name
+        - account_type
+        - initial_balance
+        - current_balance
+        - currency
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        account_name:
+          type: string
+        account_type:
+          type: string
+        initial_balance:
+          type: number
+        current_balance:
+          type: number
+        currency:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    AccountUpdateRequest:
+      type: object
+      properties:
+        account_name:
+          type: string
+        account_type:
+          type: string
+        initial_balance:
+          type: number
+        currency:
+          type: string
+    TransactionRequest:
+      type: object
+      required:
+        - account_id
+        - date
+        - amount
+        - transaction_type
+      properties:
+        account_id:
+          type: string
+        date:
+          type: string
+        amount:
+          type: number
+        transaction_type:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: string
+        recurrence:
+          type: string
+          default: none
+    TransactionResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - account_id
+        - date
+        - amount
+        - transaction_type
+        - recurrence
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        account_id:
+          type: string
+        date:
+          type: string
+        amount:
+          type: number
+        transaction_type:
+          type: string
+        description:
+          type: string
+        category_id:
+          type: string
+        recurrence:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    BudgetRequest:
+      type: object
+      required:
+        - budget_amount
+        - period
+        - start_date
+        - end_date
+      properties:
+        budget_amount:
+          type: number
+        period:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        category_id:
+          type: string
+    BudgetResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - budget_amount
+        - period
+        - start_date
+        - end_date
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        budget_amount:
+          type: number
+        period:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        category_id:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    BillRequest:
+      type: object
+      required:
+        - bill_name
+        - amount
+        - due_date
+        - reminder_offset
+      properties:
+        bill_name:
+          type: string
+        amount:
+          type: number
+        due_date:
+          type: string
+        recurrence:
+          type: string
+          default: none
+        reminder_offset:
+          type: number
+    BillResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - bill_name
+        - amount
+        - due_date
+        - recurrence
+        - reminder_offset
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        bill_name:
+          type: string
+        amount:
+          type: number
+        due_date:
+          type: string
+        recurrence:
+          type: string
+        reminder_offset:
+          type: number
+        status:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    NotificationResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - notification_type
+        - message
+        - is_read
+        - created_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        notification_type:
+          type: string
+        message:
+          type: string
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+    NotificationUpdateRequest:
+      type: object
+      required:
+        - is_read
+      properties:
+        is_read:
+          type: boolean
+    UserSettingsRequest:
+      type: object
+      required:
+        - notification_preferences
+        - other_preferences
+      properties:
+        notification_preferences:
+          type: object
+        other_preferences:
+          type: object
+    UserSettingsResponse:
+      type: object
+      required:
+        - id
+        - user_id
+        - notification_preferences
+        - other_preferences
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        user_id:
+          type: string
+        notification_preferences:
+          type: object
+        other_preferences:
+          type: object
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    KeywordRuleRequest:
+      type: object
+      required:
+        - keyword
+        - category_id
+      properties:
+        keyword:
+          type: string
+        category_id:
+          type: string
+    KeywordRuleResponse:
+      type: object
+      required:
+        - id
+        - keyword
+        - category_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+        keyword:
+          type: string
+        category_id:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string

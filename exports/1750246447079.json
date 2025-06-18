@@ -1,0 +1,15 @@
+{
+  "timestamp": 1750246447079,
+  "operation": {
+    "id": "backend:specifications:asyncapi"
+  },
+  "projectId": "personal-finance-tracker-app",
+  "files": [
+    {
+      "path": "../../apps/personal-finance-tracker-app/backend/asyncapi.yaml",
+      "type": "text",
+      "size": 3,
+      "dependencies": false
+    }
+  ]
+}
